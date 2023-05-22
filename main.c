@@ -1,7 +1,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "shell.h"
+#include "main.h"
 
 /**
  * main - entry point
