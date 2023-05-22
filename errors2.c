@@ -1,4 +1,4 @@
-#include "shell.h"
+#include "main.h"
 
 /**
  * err_atoi - converts a string to an integer
