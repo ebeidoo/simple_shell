@@ -5,7 +5,7 @@
  * @info: A pointer to the info_t structure.
  * Return: An array of strings containing the environment variables.
  */
-char **get_environ(infot *info)
+char **get_environ(info_t *info)
 {
 	if (!info->environ || info->env_changed)
 	{
