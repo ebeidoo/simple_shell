@@ -1,4 +1,4 @@
-#include "shell.h"
+#include "main.h"
 
 /**
  * strtow - splits string into words using delimiter string
