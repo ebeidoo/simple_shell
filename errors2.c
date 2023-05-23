@@ -1,4 +1,5 @@
 #include "main.h"
+#include <limits.h>
 
 /**
  * err_atoi - converts a string to an integer
@@ -56,7 +57,7 @@ int print_d(int input, int fd)
 	unsigned int abs_val, current;
 
 	if (fd == STDERR_FILENO)
-		_putchar = _eputchar;
+		_putchar = _putchar;
 	if (input < 0)
 	{
 		abs_val = -input;
