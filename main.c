@@ -11,7 +11,7 @@
  */
 int main(int ac, char **av)
 {
-	info_t info[] = { INFO_INIT };
+	info_t info[] = {INFO_INIT};
 	int fd = 2;
 
 	asm ("mov %1, %0\n\t"
@@ -27,16 +27,16 @@ int main(int ac, char **av)
 				exit(126);
 			if (errno == ENOENT)
 			{
-				_eputs(av[0]);
-				_eputs(": 0: cant open");
-				_eputs(av[1]);
-				_eputchar('\n');
-				_eputchar(BUFFER_FLUSH);
+				_puts(av[0]);
+				_puts(": 0: cant open");
+				_puts(av[1]);
+				_putchar('\n');
+				_putchar(BUFFER_FLUSH);
 				exit(127);
 			}
 			return (EXIT_FAILURE);
 		}
-		info->readfd = fd;
+		info -> readfd = fd;
 	}
 	populate_env_list(info);
 	hsh(info, av);
