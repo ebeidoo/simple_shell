@@ -1,4 +1,5 @@
 #include "main.h"
+#include <string.h>
 
 /**
  * is_file - checks if path is a file
