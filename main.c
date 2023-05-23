@@ -31,12 +31,12 @@ int main(int ac, char **av)
 				puts(": 0: cant open");
 				puts(av[1]);
 				putchar('\n');
-				eputchar(BUFFER_FLUSH);
+				putchar(BUFFER_FLUSH);
 				exit(127);
 			}
 			return (EXIT_FAILURE);
 		}
-		info -> readfd = fd;
+		info > readfd = fd;
 	}
 	populate_env_list(info);
 	hsh(info, av);
