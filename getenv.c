@@ -1,4 +1,4 @@
-#include "shell.h"
+#include "main.h"
 
 /**
  * get_environ - Returns the array of environment variables.
