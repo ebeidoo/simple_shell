@@ -17,7 +17,7 @@ char**strtow(char *str, char *d)
 	if (!d)
 		d = " ";
 	for (i = 0; str[i] != '\0'; i++)
-		if (strtow(str[i], d) && (strtow(str[i + 1], d) || !str[i + 1]))
+		if (strtow(char[i], d) && (strtow(str[i + 1], d) || !str[i + 1]))
 			numwords++;
 
 	if (numwords == 0)
@@ -27,7 +27,7 @@ char**strtow(char *str, char *d)
 		return (NULL);
 	for (i = 0, j = 0; j < numwords; j++)
 	{
-		while (is_delim(str[i], d))
+		while (strtow(str[i], d))
 			i++;
 		k = 0;
 		while (!is_delim(str[i + k], d) && str[i + k])
