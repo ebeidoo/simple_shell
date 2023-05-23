@@ -28,10 +28,10 @@ int main(int ac, char **av)
 			if (errno == ENOENT)
 			{
 				_puts(av[0]);
-				_puts(": 0: cant open");
-				_puts(av[1]);
+				_eputs(": 0: cant open");
+				_eputs(av[1]);
 				_putchar('\n');
-				_putchar(BUFFER_FLUSH);
+				_eputchar(BUFFER_FLUSH);
 				exit(127);
 			}
 			return (EXIT_FAILURE);
