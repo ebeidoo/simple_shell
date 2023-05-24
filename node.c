@@ -48,8 +48,6 @@ list_t *add_node_at_end(list_t **head, const char *str, int num)
 }
 
 
-#include "shell.h"
-
 /**
 * del_node_at_index - Deletes a node at a given index in a linked list
 * @head: A pointer to the head of the linked list
