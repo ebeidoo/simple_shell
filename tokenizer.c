@@ -20,6 +20,7 @@ char **strtow(char *str, char *d)
 		if (!is_delim(str[i], d) && (is_delim(str[i + 1], d) || !str[i + 1]))
 			numwords++;
 
+
 	if (numwords == 0)
 		return (NULL);
 	s = malloc((1 + numwords) * sizeof(char *));
