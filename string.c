@@ -22,7 +22,7 @@ return (length);
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 *custom_strcmp - Compare two strings lexicographically
@@ -46,7 +46,7 @@ return (*str1 - *str2);
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * starts_with - Check if a string starts with another string
@@ -71,7 +71,7 @@ return ((char *)str);
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * custom_strcat - Concatenate two strings
@@ -96,7 +96,7 @@ return (result);
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * custom_strcpy - Copy a string
@@ -125,7 +125,7 @@ return (dest);
 
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * custom_strdup - Duplicate a string
@@ -157,7 +157,7 @@ return (duplicate);
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * custom_puts - Print a string
@@ -180,7 +180,7 @@ void custom_puts(char *str)
 }
 
 
-#include "shell.h"
+#include "main.h"
 
 /**
 * custom_putchar - Write a character to the standard output
