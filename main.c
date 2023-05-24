@@ -36,7 +36,7 @@ int main(int ac, char **av)
 			}
 			return (EXIT_FAILURE);
 		}
-		info > read = fd;
+		info->read = fd;
 	}
 	populate_env_list(info);
 	hsh(info, av);
