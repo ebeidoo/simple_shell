@@ -11,7 +11,7 @@
  */
 int main(int ac, char **av)
 {
-	info_t info[] = {INFO_INIT};
+	info_t info[] = { INFO_INIT };
 	int fd = 2;
 
 	asm ("mov %1, %0\n\t"
@@ -31,7 +31,7 @@ int main(int ac, char **av)
 				puts(": 0: cant open");
 				puts(av[1]);
 				putchar('\n');
-				putchar(BUFFER_FLUSH);
+				putchar( BUFFER_FLUSH );
 				exit(127);
 			}
 			return (EXIT_FAILURE);
