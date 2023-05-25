@@ -1,106 +1,85 @@
 #include "main.h"
 
 /**
- * _itoa - converts an integer to string
+ *_eputs - prints an input string
+ * @str: the string to be printed
  *
- * @num: the integer to convert
- *
- * Return: the converted string
+ * Return: Nothing
  */
-char *_itoa(int num)
+void _eputs(char *str)
 {
-	char *buffer;
-	int num_digits = digits(num);
-	unsigned int n;
+	int i = 0;
 
-	buffer = malloc(sizeof(char) * (num_digits + 1));
-	if (buffer == NULL)
-		return (NULL);
-	buffer[num_digits] = '\0';
-
-	if (num < 0)
+	if (!str)
+		return;
+	while (str[i] != '\0')
 	{
-		n = num * -1;
-		buffer[0] = '-';
+		_eputchar(str[i]);
+		i++;
 	}
-	else
-		n = num;
-
-	num_digits--;
-	do {
-		buffer[num_digits] = (n % 10) + '0';
-		n /= 10;
-		num_digits--;
-	} while (n > 0);
-
-	return (buffer);
 }
 
 /**
- * digits - Counts the digit length of a number.
- * @num: The number to measure.
+ * _eputchar - writes the character c to stderr
+ * @c: The character to print
  *
- * Return: The digit length.
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
  */
-int digits(int num)
+int _eputchar(char c)
 {
-	unsigned int num1;
-	int len = 1;
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
 
-	if (num < 0)
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
 	{
-		len++;
-		num1 = num * -1;
+		write(2, buf, i);
+		i = 0;
 	}
-	else
-		num1 = num;
-
-	while (num1 > 9)
-	{
-		len++;
-		num1 /= 10;
-	}
-
-	return (len);
-}
-
-/**
- * is_numeric - checks if a string could be converted to a number
- * or not
- *
- * @s: string to check
- *
- * Return: 1 is true, 0 is false
- */
-int is_numeric(char *s)
-{
-	if (s == NULL)
-		return (0);
-
-	if (_strlen(s) == 0)
-		return (0);
-
-	if (s[0] == '-' || s[0] == '+')
-		s++;
-
-	while (*s != '\0')
-	{
-		if (!is_digit(*s))
-			return (0);
-		s++;
-	}
-
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
 	return (1);
 }
 
 /**
- * is_digit - checks if a character is a digit or not
+ * _putfd - writes the character c to given fd
+ * @c: The character to print
+ * @fd: The filedescriptor to write to
  *
- * @c: the character to check
- *
- * Return: 1 is true, 0 is false
+ * Return: On success 1.
+ * On error, -1 is returned, and errno is set appropriately.
  */
-int is_digit(char c)
+int _putfd(char c, int fd)
 {
-	return (c >= '0' && c <= '9');
+	static int i;
+	static char buf[WRITE_BUF_SIZE];
+
+	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	{
+		write(fd, buf, i);
+		i = 0;
+	}
+	if (c != BUF_FLUSH)
+		buf[i++] = c;
+	return (1);
+}
+
+/**
+ *_putsfd - prints an input string
+ * @str: the string to be printed
+ * @fd: the filedescriptor to write to
+ *
+ * Return: the number of chars put
+ */
+int _putsfd(char *str, int fd)
+{
+	int i = 0;
+
+	if (!str)
+		return (0);
+	while (*str)
+	{
+		i += _putfd(*str++, fd);
+	}
+	return (i);
 }
