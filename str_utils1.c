@@ -1,122 +1,137 @@
 #include "main.h"
 
 /**
- * list_len - determines length of linked list
- * @h: pointer to first node
+ * _substr - extracts characters from source
+ *			                between m and n.
  *
- * Return: size of list
+ * @src: string
+ * @m: first character
+ * @n: second character
+ * Return: return string between m & n
  */
-size_t list_len(const list_t *h)
+char *_substr(char *src, int m, int n)
 {
-	size_t i = 0;
+	int len = n - m, i;
+	char *ptr;
 
-	while (h)
-	{
-		h = h->next;
-		i++;
-	}
-	return (i);
+	ptr = (char *)malloc(sizeof(char) * (len + 2));
+	m--;
+
+	for (i = m; i < n && (src[i] != '\0'); i++)
+		ptr[i - m] = src[i];
+
+	ptr[len + 1] = '\0';
+
+	return (ptr);
 }
 
 /**
- * list_to_strings - returns an array of strings of the list->str
- * @head: pointer to first node
+ * _strcmp - compares two strings
  *
- * Return: array of strings
+ * @s1: first string
+ * @s2: second string
+ *
+ * Return: integer less than/equal to/greater than if s1 is found
  */
-char **list_to_strings(list_t *head)
+int _strcmp(char *s1, char *s2)
 {
-	list_t *node = head;
-	size_t i = list_len(head), j;
-	char **strs;
-	char *str;
+	while (*s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+	}
 
-	if (!head || !i)
+	if (*s1 != *s2)
+		return (*s1 - *s2);
+
+	return (0);
+}
+
+/**
+ * _strncmp - compares two strings until n
+ *
+ * @s1: first string
+ * @s2: second string
+ * @n: the first n length to compare
+ *
+ * Return: integer less than/equal to/greater than if s1 is found
+ */
+int _strncmp(char *s1, char *s2, size_t n)
+{
+	while (n && *s1 && *s2 && *s1 == *s2)
+	{
+		s1++;
+		s2++;
+		n--;
+	}
+	if (n == 0)
+	{
+		return (0);
+	}
+	else
+	{
+		return (*s1 - *s2);
+	}
+}
+
+/**
+ * _strcpy - copies from source to destination
+ *
+ * @dest: destination
+ * @src: source
+ *
+ * Return: destination if exists
+ *
+ * note: to avoid segmentation fault or wrong output,
+ *					Size Of Dest + 1 < Size Of Src.
+ */
+char *_strcpy(char *dest, char *src)
+{
+	char *ptr;
+
+	if (dest == NULL)
+		return (src);
+	if (src == NULL)
 		return (NULL);
-	strs = malloc(sizeof(char *) * (i + 1));
-	if (!strs)
+
+	ptr = dest;
+
+	while (*src)
+		*ptr++ = *src++;
+
+	*ptr = '\0';
+
+	return (dest);
+}
+
+/**
+ * _strncpy - copies from source to destination
+ *				until n characters.
+ *
+ * @dest: destination
+ * @src: source
+ * @n: number of characters to copy to
+ *
+ * Return: destination if exists, otherwise null.
+ *
+ * note: to avoid segmentation fault or wrong output,
+ *					Size Of Dest + 1 < n.
+ */
+char *_strncpy(char *dest, char *src, size_t n)
+{
+	char *ptr;
+
+	if (dest == NULL)
+		return (src);
+	if (src == NULL)
 		return (NULL);
-	for (i = 0; node; node = node->next, i++)
-	{
-		str = malloc(_strlen(node->str) + 1);
-		if (!str)
-		{
-			for (j = 0; j < i; j++)
-				free(strs[j]);
-			free(strs);
-			return (NULL);
-		}
 
-		str = _strcpy(str, node->str);
-		strs[i] = str;
-	}
-	strs[i] = NULL;
-	return (strs);
-}
+	ptr = dest;
 
+	while (*src && (n-- != 0))
+		*ptr++ = *src++;
 
-/**
- * print_list - prints all elements of a list_t linked list
- * @h: pointer to first node
- *
- * Return: size of list
- */
-size_t print_list(const list_t *h)
-{
-	size_t i = 0;
+	*ptr = '\0';
 
-	while (h)
-	{
-		_puts(convert_number(h->num, 10, 0));
-		_putchar(':');
-		_putchar(' ');
-		_puts(h->str ? h->str : "(nil)");
-		_puts("\n");
-		h = h->next;
-		i++;
-	}
-	return (i);
-}
-
-/**
- * node_starts_with - returns node whose string starts with prefix
- * @node: pointer to list head
- * @prefix: string to match
- * @c: the next character after prefix to match
- *
- * Return: match node or null
- */
-list_t *node_starts_with(list_t *node, char *prefix, char c)
-{
-	char *p = NULL;
-
-	while (node)
-	{
-		p = starts_with(node->str, prefix);
-		if (p && ((c == -1) || (*p == c)))
-			return (node);
-		node = node->next;
-	}
-	return (NULL);
-}
-
-/**
- * get_node_index - gets the index of a node
- * @head: pointer to list head
- * @node: pointer to the node
- *
- * Return: index of node or -1
- */
-ssize_t get_node_index(list_t *head, list_t *node)
-{
-	size_t i = 0;
-
-	while (head)
-	{
-		if (head == node)
-			return (i);
-		head = head->next;
-		i++;
-	}
-	return (-1);
+	return (dest);
 }
