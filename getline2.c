@@ -1,7 +1,7 @@
 #include "main.h"
 
 /**
- * _getline - gets the next line of input from STDIN
+ * _read_buf - gets the next line of input from STDIN
  * @info: parameter struct
  * @ptr: address of pointer to buffer, preallocated or NULL
  * @length: size of preallocated ptr buffer if not NULL
