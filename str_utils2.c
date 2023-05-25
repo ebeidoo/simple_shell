@@ -1,127 +1,75 @@
 #include "main.h"
 
 /**
- * _strlen - returns length of string
+ * _strlen - returns the length of a string
+ * @s: the string whose length to check
  *
- * @s: string
- * Return: length of string
+ * Return: integer length of string
  */
-size_t _strlen(char *s)
+int _strlen(char *s)
 {
-	int count = 0;
+	int i = 0;
 
-	while (s[count] != '\0')
-		count++;
+	if (!s)
+		return (0);
 
-	return (count);
+	while (*s++)
+		i++;
+	return (i);
 }
 
 /**
- * _strcat - concatenate to strings
+ * _strcmp - performs lexicogarphic comparison of two strangs.
+ * @s1: the first strang
+ * @s2: the second strang
  *
- * @dest: destination string
- * @src: source string
+ * Return: negative if s1 < s2, positive if s1 > s2, zero if s1 == s2
+ */
+int _strcmp(char *s1, char *s2)
+{
+	while (*s1 && *s2)
+	{
+		if (*s1 != *s2)
+			return (*s1 - *s2);
+		s1++;
+		s2++;
+	}
+	if (*s1 == *s2)
+		return (0);
+	else
+		return (*s1 < *s2 ? -1 : 1);
+}
+
+/**
+ * starts_with - checks if needle starts with haystack
+ * @haystack: string to search
+ * @needle: the substring to find
  *
- * Return: dest if exists
+ * Return: address of next char of haystack or NULL
+ */
+char *starts_with(const char *haystack, const char *needle)
+{
+	while (*needle)
+		if (*needle++ != *haystack++)
+			return (NULL);
+	return ((char *)haystack);
+}
+
+/**
+ * _strcat - concatenates two strings
+ * @dest: the destination buffer
+ * @src: the source buffer
+ *
+ * Return: pointer to destination buffer
  */
 char *_strcat(char *dest, char *src)
 {
-	char *ptr;
+	char *ret = dest;
 
-	if (dest == NULL)
-		return (NULL);
-
-	ptr = dest + _strlen(dest);
-
-	while (*src != '\0')
-		*ptr++ = *src++;
-
-	*ptr = '\0';
-
-	return (dest);
-}
-
-/**
- * _strdup - returns a pointer to a copy of a string
- *
- * @s: string to be copied
- *
- * Return: pointer to new copy
- */
-char *_strdup(char *s)
-{
-	char *copy = NULL;
-	size_t len = 0, i;
-
-	if (s == NULL)
-		return (NULL);
-
-	len = _strlen(s) + 1;
-
-	copy = malloc(len * sizeof(char));
-
-	if (copy != NULL)
-	{
-		for (i = 0; i < len; i++)
-			copy[i] = s[i];
-	}
-
-	return (copy);
-}
-
-/**
- * _strchr - finds first instance of a char
- *				in a string.
- *
- * @str: the string to search in.
- * @ch: the character to search for.
- *
- * Return: If found, return a pointer value,
- *				If not, return NULL.
- */
-char *_strchr(char *str, int ch)
-{
-	int i;
-
-	for (i = 0; str[i] != '\0'; i++)
-	{
-		if (ch == str[i])
-			return (&str[i]);
-	}
-
-	return (NULL);
-}
-
-/**
- * _atoi - convert string to integer
- *
- * @str: string
- *
- * Return: returns integer.
- *
- * note: *10 is an indication if digit.
- */
-int _atoi(char *str)
-{
-	int res = 0, sign = 1;
-	int i = 0;
-
-	while (str[i] == ' ')
-		i++;
-
-	if (str[i] == '-')
-	{
-		sign = -1;
-		i++;
-	}
-	else if (str[i] == '+')
-		i++;
-
-	while (str[i] >= '0' && str[i] <= '9')
-	{
-		res = res * 10 + (str[i] - '0');
-		i++;
-	}
-
-	return (sign * res);
+	while (*dest)
+		dest++;
+	while (*src)
+		*dest++ = *src++;
+	*dest = *src;
+	return (ret);
 }
