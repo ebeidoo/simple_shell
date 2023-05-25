@@ -1,10 +1,10 @@
 #include "main.h"
 
 /**
- * strtow - splits string into words using delimiter string
- * @str: input string to be split
+ * **strtow - splits a string into words. Repeat delimiters are ignored
+ * @str: the input string
  * @d: the delimeter string
- * Return: pointer to an array of strings or NULL on failure
+ * Return: a pointer to an array of strings, or NULL on failure
  */
 
 char **strtow(char *str, char *d)
@@ -19,7 +19,6 @@ char **strtow(char *str, char *d)
 	for (i = 0; str[i] != '\0'; i++)
 		if (!is_delim(str[i], d) && (is_delim(str[i + 1], d) || !str[i + 1]))
 			numwords++;
-
 
 	if (numwords == 0)
 		return (NULL);
@@ -50,10 +49,10 @@ char **strtow(char *str, char *d)
 }
 
 /**
- * **strtow2 - splits a string into words using delimiter
- * @str: input string to be split
- * @d: delimeter character
- * Return: pointer to an array of strings or NULL on failure
+ * **strtow2 - splits a string into words
+ * @str: the input string
+ * @d: the delimeter
+ * Return: a pointer to an array of strings, or NULL on failure
  */
 char **strtow2(char *str, char d)
 {
