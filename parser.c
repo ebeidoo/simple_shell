@@ -1,86 +1,157 @@
 #include "main.h"
 
 /**
- * is_cmd - determines if a file is an executable command
- * @info: the info struct
- * @path: path to the file
+ * parse_cmd - extracts the command and arguments
  *
- * Return: 1 if true, 0 otherwise
+ * @cmd: pointer to a string
+ * @argv: array of pointers to strings
+ *
+ * Return: number of tokens
  */
-int is_cmd(info_t *info, char *path)
+int parse_cmd(char *cmd, char **argv)
 {
+	int argc = 0, i = 0, len = 0, empty_str = 0;
+	char c, *arg, quote = '\0';
+
+	arg = malloc(sizeof(char) * (_strlen(cmd) + 1));
+	for (i = 0; (c = cmd[i]) != '\0'; i++)
+	{
+		if ((c == '\'' || c == '\"'))
+		{
+			if (!quote)
+				quote = c;
+			else if (quote == c)
+				quote = '\0', empty_str = 1;
+		}
+		else if ((c == ' ' || c == '\n' || c == '\t') && !quote)
+		{
+			if (len || empty_str)
+			{
+				arg[len] = '\0';
+				argv[argc++] = _strdup(arg);
+				len = 0, empty_str = 0;
+			}
+		}
+		else
+		{
+			if (c == '\\' && cmd[i + 1] != '\0')
+				c = cmd[++i];
+			arg[len++] = c;
+			empty_str = 0;
+		}
+	}
+	if (len || empty_str)
+	{
+		arg[len] = '\0';
+		argv[argc++] = _strdup(arg);
+	}
+
+	argv[argc] = NULL;
+	free(arg);
+	return (argc);
+}
+
+
+/**
+ * parse_path - extracts existing paths holding
+ *				the command
+ *
+ * @cmd: the command
+ *
+ * Return: pointer to strings of the right paths
+ */
+char *parse_path(char *cmd)
+{
+	int i = 0, k = 0, j, len;
+	char *value = _getenv("PATH"), *path = malloc(1);
 	struct stat st;
 
-	(void)info;
-	if (!path || stat(path, &st))
-		return (0);
-
-	if (st.st_mode & S_IFREG)
+	if (value == NULL)
 	{
-		return (1);
+		free(path);
+		return (_strdup(cmd));
 	}
-	return (0);
+
+	len = _strlen(cmd);
+	path[0] = '\0';
+
+	while (value[i] != '\0')
+	{
+		while (value[i] != ':' && value[i] != '\0')
+			i++;
+
+		path = _realloc(path, sizeof(char) * _strlen(path), i - k + len + 2);
+
+		_strncpy(path, value + k, (j = i - k));
+		path[j++] = '/';
+		_strncpy(path + j, cmd, i - k + len + 2);
+
+		if (stat(path, &st) == 0)
+			return (path);
+
+		if (value[i] == '\0')
+			break;
+
+		k = ++i;
+	}
+
+	free(path);
+	return (_strdup(cmd));
 }
 
 /**
- * dup_chars - duplicates characters
- * @pathstr: the PATH string
- * @start: starting index
- * @stop: stopping index
+ * split_cmds - spilts the buffer containing commands into two strings
  *
- * Return: pointer to new buffer
- */
-char *dup_chars(char *pathstr, int start, int stop)
-{
-	static char buf[1024];
-	int i = 0, k = 0;
-
-	for (k = 0, i = start; i < stop; i++)
-		if (pathstr[i] != ':')
-			buf[k++] = pathstr[i];
-	buf[k] = 0;
-	return (buf);
-}
-
-/**
- * find_path - finds this cmd in the PATH string
- * @info: the info struct
- * @pathstr: the PATH string
- * @cmd: the cmd to find
+ * @buffer: a string that contains the commands
+ * @separator: the separator that should be used to split the buffer
+ * @cmd: a pointer to the first command
+ * @rest: a pointer to the rest of the string
  *
- * Return: full path of cmd if found or NULL
+ * Note: this function separates the BUFFER by ';', '||' or '&&'
+ * and sets SEPARATOR char to the one found then it assigns the
+ * first half (first command) to CMD pointer
+ * and assigns the rest of the string to REST pointer.
+ *
+ * If no SEPARATOR can be found in BUFFER, the fucntion assigns the
+ * whole BUFFER into CMD and REST is pointing to NULL
  */
-char *find_path(info_t *info, char *pathstr, char *cmd)
+void split_cmds(char *buffer, UNUSED char *separator, char **cmd, char **rest)
 {
-	int i = 0, curr_pos = 0;
-	char *path;
+	int i;
+	char quote = '\0';
 
-	if (!pathstr)
-		return (NULL);
-	if ((_strlen(cmd) > 2) && starts_with(cmd, "./"))
+	*cmd = buffer;
+	*separator = '\0';
+	*rest = NULL;
+
+	for (i = 0; buffer[i] != '\0'; i++)
 	{
-		if (is_cmd(info, cmd))
-			return (cmd);
-	}
-	while (1)
-	{
-		if (!pathstr[i] || pathstr[i] == ':')
+		if (buffer[i] == '\'' || buffer[i] == '\"')
 		{
-			path = dup_chars(pathstr, curr_pos, i);
-			if (!*path)
-				_strcat(path, cmd);
-			else
-			{
-				_strcat(path, "/");
-				_strcat(path, cmd);
-			}
-			if (is_cmd(info, path))
-				return (path);
-			if (!pathstr[i])
-				break;
-			curr_pos = i;
+			if (!quote)
+				quote = buffer[i];
+			else if (quote == buffer[i])
+				quote = '\0';
 		}
-		i++;
+
+		if (!((buffer[i] == ';' || _strncmp(buffer + i, "||", 2) == 0 ||
+			_strncmp(buffer + i, "&&", 2) == 0 || buffer[i] == '#') && !quote))
+			continue;
+
+		if (buffer[i] == '#' && i > 0 && buffer[i - 1] != ' ')
+			continue;
+
+		*separator = buffer[i];
+		*rest = buffer + i + 1;
+
+		if ((_strncmp(buffer + i, "||", 2) == 0 ||
+					_strncmp(buffer + i, "&&", 2) == 0))
+		{
+			buffer[i + 1] = ' ';
+			*rest += 1;
+		}
+		buffer[i] = '\0';
+
+		break;
 	}
-	return (NULL);
 }
