@@ -1,7 +1,7 @@
 #include "main.h"
 
 /**
- * _read_buf - gets the next line of input from STDIN
+ * _getline - gets the next line of input from STDIN
  * @info: parameter struct
  * @ptr: address of pointer to buffer, preallocated or NULL
  * @length: size of preallocated ptr buffer if not NULL
@@ -22,7 +22,7 @@ int _getline(info_t *info, char **ptr, size_t *length)
 	if (i == len)
 		i = len = 0;
 
-	r = _read_buf(info, buf, &len);
+	r = _getline(info, buf, &len);
 	if (r == -1 || (r == 0 && len == 0))
 		return (-1);
 
