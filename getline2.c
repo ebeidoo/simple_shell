@@ -8,7 +8,7 @@
  *
  * Return: s
  */
-int _getline(info_t *info, char **, size_t *length)
+int _getline(info_t *info, char **ptr, size_t *length)
 {
 	static char buf[READ_BUF_SIZE];
 	static size_t i, len;
@@ -22,7 +22,7 @@ int _getline(info_t *info, char **, size_t *length)
 	if (i == len)
 		i = len = 0;
 
-	r = _getline(info, char, &len);
+	r = read_buf(info, buf, &len);
 	if (r == -1 || (r == 0 && len == 0))
 		return (-1);
 
