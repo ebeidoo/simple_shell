@@ -1,115 +1,176 @@
 #include "main.h"
 
-/**
- * _myhistory - displays the history list, one command by line, preceded
- *              with line numbers, starting at 0.
- * @info: Structure containing potential arguments. Used to maintain
- *        constant function prototype.
- *  Return: Always 0
- */
-int _myhistory(info_t *info)
-{
-	print_list(info->history);
-	return (0);
-}
+void update_alias_env(char *new_alias, char *new_value, int update_env);
+char *setup_alias(char *alias, int len);
 
 /**
- * unset_alias - sets alias to string
- * @info: parameter struct
- * @str: the string alias
+ * print_alias - prints alias(es) from environ
  *
- * Return: Always 0 on success, 1 on error
- */
-int unset_alias(info_t *info, char *str)
-{
-	char *p, c;
-	int ret;
-
-	p = _strchr(str, '=');
-	if (!p)
-		return (1);
-	c = *p;
-	*p = 0;
-	ret = delete_node_at_index(&(info->alias),
-		get_node_index(info->alias, node_starts_with(info->alias, str, -1)));
-	*p = c;
-	return (ret);
-}
-
-/**
- * set_alias - sets alias to string
- * @info: parameter struct
- * @str: the string alias
+ * @name: the alias name to print it's value
  *
- * Return: Always 0 on success, 1 on error
- */
-int set_alias(info_t *info, char *str)
-{
-	char *p;
-
-	p = _strchr(str, '=');
-	if (!p)
-		return (1);
-	if (!*++p)
-		return (unset_alias(info, str));
-
-	unset_alias(info, str);
-	return (add_node_end(&(info->alias), str, 0) == NULL);
-}
-
-/**
- * print_alias - prints an alias string
- * @node: the alias node
+ * Note: if name is null, the function prints all aliases
  *
- * Return: Always 0 on success, 1 on error
+ * Return: 0 on sucess, 2 on failure
  */
-int print_alias(list_t *node)
+int print_alias(char *name)
 {
-	char *p = NULL, *a = NULL;
+	int i, len;
+	char *alias_env, *alias_value;
 
-	if (node)
+	alias_env = _getenv("alias");
+	if (alias_env == NULL)
+		return (2);
+
+	if (name != NULL)
 	{
-		p = _strchr(node->str, '=');
-		for (a = node->str; a <= p; a++)
-			_putchar(*a);
-		_putchar('\'');
-		_puts(p + 1);
-		_puts("'\n");
-		return (0);
+		len = _strlen(name);
+		alias_value = alias_env;
+		for (i = 0; alias_env[i] != '\0'; i++)
+			if (alias_env[i] == ':')
+			{
+				if (_strncmp(alias_value, name, len) == 0)
+				{
+					alias_env[i] = '\0';
+					print_str(alias_value);
+					print_str("\n");
+					alias_env[i] = ':';
+					break;
+				}
+				else
+					alias_value = alias_env + i + 1;
+			}
 	}
-	return (1);
-}
-
-/**
- * _myalias - mimics the alias builtin (man alias)
- * @info: Structure containing potential arguments. Used to maintain
- *          constant function prototype.
- *  Return: Always 0
- */
-int _myalias(info_t *info)
-{
-	int i = 0;
-	char *p = NULL;
-	list_t *node = NULL;
-
-	if (info->argc == 1)
+	else
 	{
-		node = info->alias;
-		while (node)
+		alias_value = alias_env;
+		for (i = 0; alias_env[i] != '\0'; i++)
 		{
-			print_alias(node);
-			node = node->next;
+			if (alias_env[i] == ':')
+			{
+				alias_env[i] = '\0';
+				print_str(alias_value);
+				print_str("\n");
+				alias_value = alias_env + i + 1;
+				alias_env[i] = ':';
+			}
 		}
-		return (0);
-	}
-	for (i = 1; info->argv[i]; i++)
-	{
-		p = _strchr(info->argv[i], '=');
-		if (p)
-			set_alias(info, info->argv[i]);
-		else
-			print_alias(node_starts_with(info->alias, info->argv[i], '='));
 	}
 
 	return (0);
+}
+
+/**
+ * set_alias - add a new alias or overwrite existing value
+ *
+ * @new_value: the new alias to set
+ *
+ * Return: 0 on sucess, 2 on failure
+ */
+int set_alias(char *new_value)
+{
+	int i, name_len, alias_env_len;
+	char *alias_value, *alias_env, *new_alias;
+
+	if (new_value == NULL)
+	{
+		print_err("Can't set alias: value is null");
+		return (2);
+	}
+
+	name_len = _strchr(new_value, '=') - new_value;
+	new_value = setup_alias(new_value, name_len);
+
+	alias_env = _getenv("alias");
+	if (alias_env == NULL)
+	{
+		new_alias = (char *)malloc(sizeof(char) * _strlen(new_value) + 2);
+		new_alias[0] = '\0';
+		update_alias_env(new_alias, new_value, 1);
+		free(new_alias);
+		free(new_value);
+		return (2);
+	}
+
+	new_alias = (char *)malloc(sizeof(char) *
+					(_strlen(new_value) +
+					_strlen(alias_env) + 2));
+	if (new_alias == NULL)
+	{
+		print_err("Can't set alias: couldn't allocate enough memory");
+		return (2);
+	}
+	new_alias[0] = '\0';
+
+	alias_value = alias_env;
+	for (i = 0; alias_env[i] != '\0'; i++)
+		if (alias_env[i] == ':')
+		{
+			alias_env_len = _strchr(alias_value, '=') - alias_value;
+			if (alias_env_len != name_len ||
+				_strncmp(alias_value, new_value, name_len) != 0)
+			{
+				alias_env[i] = '\0';
+				update_alias_env(new_alias, alias_value, 0);
+				alias_env[i] = ':';
+			}
+			alias_value = alias_env + i + 1;
+		}
+
+	update_alias_env(new_alias, new_value, 1);
+	free(new_alias);
+	free(new_value);
+	return (0);
+}
+
+/**
+ * update_alias_env - appends new_alias to alias_env
+ *
+ * @new_alias: current alias env value
+ * @new_value: string - the new alias to append
+ * @update_env: boolean - if true update environ with the new alias
+ *
+ * Note: this is a helper function for set_alias
+ */
+void update_alias_env(char *new_alias, char *new_value, int update_env)
+{
+	_strcat(new_alias, new_value);
+
+	if (new_value[0] != '\0')
+		_strcat(new_alias, ":");
+
+	if (update_env)
+		_setenv("alias", new_alias);
+}
+
+/**
+ * setup_alias - setup the alias to insert it in environ
+ *
+ * @alias: the string to be processed
+ * @len: the len of alias name
+ *
+ * Return: pointer to string - the processed alias
+ */
+char *setup_alias(char *alias, int len)
+{
+	char *new_alias;
+
+	if (alias[len + 1] == '\"')
+	{
+		alias[len + 1] = '\'';
+		alias[_strlen(alias) - 1] = '\'';
+	}
+
+	if (alias[len + 1] == '\'')
+		return (_strdup(alias));
+
+	new_alias = malloc(sizeof(char) * (_strlen(alias) + 3));
+	if (new_alias == NULL)
+		return (_strdup(alias));
+
+	new_alias[0] = '\0';
+	_strncpy(new_alias, alias, len);
+	_strcat(new_alias, "='");
+	_strcat(new_alias, alias + len + 1);
+	_strcat(new_alias, "\'");
+	return (new_alias);
 }
