@@ -2,75 +2,65 @@
 #include <string.h>
 
 /**
- * is_file - checks if path is a file
- * @path: the path to check
- * Return: 1 if path is a file, 0 otherwise
+ * interactive - returns true if shell is interactive mode
+ * @info: struct address
+ *
+ * Return: 1 if interactive mode, 0 otherwise
  */
-int is_file(char *path)
+int interactive(info_t *info)
 {
-	struct stat st;
-
-	if (stat(path, &st) == 0)
-		return S_ISREG(st.st_mode);
-
-	return 0;
+	return (isatty(STDIN_FILENO) && info->readfd <= 2);
 }
 
 /**
- * str_concat - concatenates two strings
- * @s1: the first string
- * @s2: the second string
- * Return: pointer to concatenated string
+ * is_delim - checks if character is a delimeter
+ * @c: the char to check
+ * @delim: the delimeter string
+ * Return: 1 if true, 0 if false
  */
-char *str_concat(char *s1, char *s2)
+int is_delim(char c, char *delim)
 {
-	size_t len1 = strlen(s1);
-	size_t len2 = strlen(s2);
-	char *result = malloc(len1 + len2 + 1);
-
-	if (result == NULL)
-		return NULL;
-
-	strcpy(result, s1);
-	strcat(result, s2);
-	return result;
+	while (*delim)
+		if (*delim++ == c)
+			return (1);
+	return (0);
 }
 
 /**
- * print_array - prints an array of strings
- * @arr: the array of strings
- * @size: the size of the array
- * Return: void
+ *_isalpha - checks for alphabetic character
+ *@c: The character to input
+ *Return: 1 if c is alphabetic, 0 otherwise
  */
-void print_array(char **arr, int size)
-{
-	int i;
 
-	for (i = 0; i < size; i++)
-		printf("%s\n", arr[i]);
+int _isalpha(int c)
+{
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+		return (1);
+	else
+		return (0);
 }
 
 /**
- * get_env - gets the value of an environment variable
- * @s: the string of the environment variable
- * Return: integer value of environment variable, 0 if not found
+ *_atoi - converts a string to an integer
+ *@s: the string to be converted
+ *Return: 0 if no numbers in string, converted number otherwise
  */
 
-int get_env(char *s)
+int _atoi(char *s)
 {
-	int q, sign = 1, flag = 0, output = 0;
+	int i, sign = 1, flag = 0, output;
 	unsigned int result = 0;
 
-	for (q = 0; s[q] != '\0' && flag != 2; q++)
+	for (i = 0;  s[i] != '\0' && flag != 2; i++)
 	{
-		if (s[q] == '-')
+		if (s[i] == '-')
 			sign *= -1;
 
-		if (s[q] >= '0' && s[q] <= '9')
+		if (s[i] >= '0' && s[i] <= '9')
 		{
 			flag = 1;
 			result *= 10;
-			result += (s[q] - '0');
+			result += (s[i] - '0');
 		}
 		else if (flag == 1)
 			flag = 2;
@@ -80,5 +70,6 @@ int get_env(char *s)
 		output = -result;
 	else
 		output = result;
-	return output;
+
+	return (output);
 }
