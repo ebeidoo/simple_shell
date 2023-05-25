@@ -18,3 +18,39 @@ void _memcpy(void *dest, void *src, size_t n)
 	for (i = 0; i < n; i++)
 		cdest[i] = csrc[i];
 }
+
+/**
+ * _realloc - reallocates a block of memory
+ *
+ * @ptr: pointer to malloc'ated block
+ * @old_size: byte size of current block
+ * @new_size: byte size of new block
+ *
+ * Return: pointer to the new memory block.
+ */
+void *_realloc(void *ptr, unsigned int old_size,
+		unsigned int new_size)
+{
+	int size, i;
+	char *p;
+
+	if (ptr == NULL)
+		return (malloc(new_size));
+	if (new_size == 0)
+		return (free(ptr), NULL);
+	if (new_size == old_size)
+		return (ptr);
+
+	p = malloc(new_size);
+
+	if (p == NULL)
+		return (NULL);
+
+	size = old_size < new_size ? old_size : new_size;
+
+	for (i = 0; i < size; i++)
+		p[i] = ((char *)ptr)[i];
+
+	free(ptr);
+	return (p);
+}
