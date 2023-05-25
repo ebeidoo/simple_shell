@@ -1,4 +1,6 @@
-build
-*tmp*
-.vscode
-__pycache__
+# Ignore Emacs buffer files
+*#
+*~
+
+# Ignore executable file
+*.out
