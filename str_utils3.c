@@ -1,6 +1,5 @@
 #include "main.h"
 
-int digits(int num);
 
 /**
  * _itoa - converts an integer to string
