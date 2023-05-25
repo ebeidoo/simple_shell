@@ -1,18 +1,17 @@
 #include "main.h"
 
 /**
- * populate_env_list - populates env linked list
- * @info: Structure containing potential arguments. Used to maintain
- *          constant function prototype.
- * Return: Always 0
+ * _getenvLen - gets the number of variables
+ *				inside an environment.
+ * Return: number of variables.
  */
-int populate_env_list(info_t *info)
+int _getenvLen(void)
 {
-	list_t *node = NULL;
-	size_t i;
+	int count;
 
-	for (i = 0; environ[i]; i++)
-		add_node_end(&node, environ[i], 0);
-	info->env = node;
-	return (0);
+	for (count = 0; environ[count] != NULL; count++)
+		;
+
+	return (count);
 }
+
