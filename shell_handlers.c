@@ -1,89 +1,160 @@
 #include "main.h"
 
 /**
- * handle_variables - handle variable replacment for arguments
+ * hsh - main shell loop
+ * @info: the parameter & return info struct
+ * @av: the argument vector from main()
  *
- * @argv: a pointer to an array of arguments
+ * Return: 0 on success, 1 on error, or error code
  */
-void handle_variables(char **argv)
+int hsh(info_t *info, char **av)
 {
-	int i;
-	char *value;
+	ssize_t r = 0;
+	int builtin_ret = 0;
 
-	for (i = 0; argv[i] != NULL; i++)
+	while (r != -1 && builtin_ret != -2)
 	{
-		if (argv[i][0] == '$')
+		clear_info(info);
+		if (interactive(info))
+			_puts("$ ");
+		_eputchar(BUF_FLUSH);
+		r = get_input(info);
+		if (r != -1)
 		{
-			if (_strncmp(argv[i], "$$", 2) == 0)
-				value = _itoa(getpid());
-			else if (_strncmp(argv[i], "$?", 2) == 0)
-				value = _itoa(status_code);
-			else if (argv[i][1] != '\0')
-			{
-				value = _strdup(_getenv(argv[i] + 1));
-				if (value == NULL)
-				{
-					argv[i][0] = '\0';
-					continue;
-				}
-			}
-			else
-				continue;
+			set_info(info, av);
+			builtin_ret = find_builtin(info);
+			if (builtin_ret == -1)
+				find_cmd(info);
+		}
+		else if (interactive(info))
+			_putchar('\n');
+		free_info(info, 0);
+	}
+	write_history(info);
+	free_info(info, 1);
+	if (!interactive(info) && info->status)
+		exit(info->status);
+	if (builtin_ret == -2)
+	{
+		if (info->err_num == -1)
+			exit(info->status);
+		exit(info->err_num);
+	}
+	return (builtin_ret);
+}
 
-			argv[i] = _realloc(argv[i],
-					sizeof(char) * _strlen(argv[i]),
-					sizeof(char) * (_strlen(value) + 1));
+/**
+ * find_builtin - finds a builtin command
+ * @info: the parameter & return info struct
+ *
+ * Return: -1 if builtin not found,
+ *			0 if builtin executed successfully,
+ *			1 if builtin found but not successful,
+ *			-2 if builtin signals exit()
+ */
+int find_builtin(info_t *info)
+{
+	int i, built_in_ret = -1;
+	builtin_table builtintbl[] = {
+		{"exit", _myexit},
+		{"env", _myenv},
+		{"help", _myhelp},
+		{"history", _myhistory},
+		{"setenv", _mysetenv},
+		{"unsetenv", _myunsetenv},
+		{"cd", _mycd},
+		{"alias", _myalias},
+		{NULL, NULL}
+	};
 
-			_strcpy(argv[i], value);
-			free(value);
+	for (i = 0; builtintbl[i].type; i++)
+		if (_strcmp(info->argv[0], builtintbl[i].type) == 0)
+		{
+			info->line_count++;
+			built_in_ret = builtintbl[i].func(info);
+			break;
+		}
+	return (built_in_ret);
+}
+
+/**
+ * find_cmd - finds a command in PATH
+ * @info: the parameter & return info struct
+ *
+ * Return: void
+ */
+void find_cmd(info_t *info)
+{
+	char *path = NULL;
+	int i, k;
+
+	info->path = info->argv[0];
+	if (info->linecount_flag == 1)
+	{
+		info->line_count++;
+		info->linecount_flag = 0;
+	}
+	for (i = 0, k = 0; info->arg[i]; i++)
+		if (!is_delim(info->arg[i], " \t\n"))
+			k++;
+	if (!k)
+		return;
+
+	path = find_path(info, _getenv(info, "PATH="), info->argv[0]);
+	if (path)
+	{
+		info->path = path;
+		fork_cmd(info);
+	}
+	else
+	{
+		if ((interactive(info) || _getenv(info, "PATH=")
+			|| info->argv[0][0] == '/') && is_cmd(info, info->argv[0]))
+			fork_cmd(info);
+		else if (*(info->arg) != '\n')
+		{
+			info->status = 127;
+			print_error(info, "not found\n");
 		}
 	}
 }
 
 /**
- * handle_aliases - handle alias replacment for arguments
+ * fork_cmd - forks a an exec thread to run cmd
+ * @info: the parameter & return info struct
  *
- * @argv: a pointer to an array of arguments
+ * Return: void
  */
-void handle_aliases(char **argv)
+void fork_cmd(info_t *info)
 {
+	pid_t child_pid;
 
-	int i, j, len, change = 1;
-	char *alias_env, *alias_value;
-
-	alias_env = _getenv("alias");
-	if (alias_env == NULL)
-		return;
-
-	while (change)
+	child_pid = fork();
+	if (child_pid == -1)
 	{
-		change = 0;
-		for (i = 0; i < 1 && argv[i] != NULL; i++)
+		/* TODO: PUT ERROR FUNCTION */
+		perror("Error:");
+		return;
+	}
+	if (child_pid == 0)
+	{
+		if (execve(info->path, info->argv, get_environ(info)) == -1)
 		{
-			len = _strlen(argv[i]);
-			alias_value = alias_env;
-
-			for (j = 0; alias_env[j] != '\0'; j++)
-			{
-				if (alias_env[j] == ':')
-				{
-					if (_strncmp(alias_value, argv[i], len) == 0 && alias_value[len] == '=')
-					{
-						change = 1;
-						alias_env[j] = '\0';
-						argv[i] = _realloc(argv[i],
-								sizeof(char) * _strlen(argv[i]),
-								sizeof(char) * _strlen(alias_value) + 1);
-						_strncpy(argv[i],
-								alias_value + len + 2,
-								_strlen(alias_value) - len - 3);
-						alias_env[j] = ':';
-						break;
-					}
-					else
-						alias_value = alias_env + j + 1;
-				}
-			}
+			free_info(info, 1);
+			if (errno == EACCES)
+				exit(126);
+			exit(1);
+		}
+		/* TODO: PUT ERROR FUNCTION */
+	}
+	else
+	{
+		wait(&(info->status));
+		if (WIFEXITED(info->status))
+		{
+			info->status = WEXITSTATUS(info->status);
+			if (info->status == 126)
+				print_error(info, "Permission denied\n");
 		}
 	}
 }
