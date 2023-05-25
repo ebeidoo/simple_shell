@@ -1,180 +1,97 @@
 #include "main.h"
 
-int print_alias(char *name);
-int set_alias(char *new_value);
-
 /**
- * exit_shell - clears all allocated memory and
- * exits the shell
- *
- * @line_buffer: the buffer that contains the command and it's arguments
- * @argv: array of strings
- *
- * Return: 0 on sucess, 2 on failure
+ * _myexit - exits the shell
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: exits with a given exit status
+ *         (0) if info.argv[0] != "exit"
  */
-int exit_shell(char *line_buffer, char **argv)
+int _myexit(info_t *info)
 {
-	int j, status = 0;
+	int exitcheck;
 
-	if (argv[1] == NULL)
-		status = status_code;
-	else if (!is_numeric(argv[1]))
+	if (info->argv[1])  /* If there is an exit arguement */
 	{
-		error_exit(argv[1]);
-		return (2);
-	}
-	else
-	{
-		status = _atoi(argv[1]);
-		if (status < 0)
+		exitcheck = _erratoi(info->argv[1]);
+		if (exitcheck == -1)
 		{
-			error_exit(argv[1]);
-			return (2);
+			info->status = 2;
+			print_error(info, "Illegal number: ");
+			_eputs(info->argv[1]);
+			_eputchar('\n');
+			return (1);
 		}
-		status %= 256;
+		info->err_num = _erratoi(info->argv[1]);
+		return (-2);
 	}
-
-	for (j = 0; argv[j] != NULL; j++)
-		free(argv[j]);
-
-	free_env();
-	free(line_buffer);
-
-	exit(status);
-	return (0);
+	info->err_num = -1;
+	return (-2);
 }
 
 /**
- * _env - prints all environmental variables.
+ * _mycd - changes the current directory of the process
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
  */
-void _env(void)
+int _mycd(info_t *info)
 {
-	int idx;
+	char *s, *dir, buffer[1024];
+	int chdir_ret;
 
-	for (idx = 0; environ[idx]; idx++)
+	s = getcwd(buffer, 1024);
+	if (!s)
+		_puts("TODO: >>getcwd failure emsg here<<\n");
+	if (!info->argv[1])
 	{
-		print_str(environ[idx]);
-		print_str("\n");
+		dir = _getenv(info, "HOME=");
+		if (!dir)
+			chdir_ret = /* TODO: what should this be? */
+				chdir((dir = _getenv(info, "PWD=")) ? dir : "/");
+		else
+			chdir_ret = chdir(dir);
 	}
-}
-
-/**
- * format_tilde - search string for home/@USERNAME
- *			            if exists, change it to ~.
- *
- * @str: string to search for.
- * Return: string
- */
-char *format_tilde(char *str)
-{
-	int len = 0, path_len = 0;
-	char *home, *username, *result, *tmp;
-
-	username = _getenv("USERNAME");
-
-	if (username == NULL)
-		return (NULL);
-
-	len = _strlen(username);
-	home = (char *)malloc(sizeof(char) * (7 + len));
-	home[0] = '\0';
-
-	if (home == NULL)
-		return (NULL);
-
-	_strcat(home, "/home/");
-	_strcat(home, username);
-	len = _strlen(home);
-	path_len = _strlen(str);
-
-	result = (char *)malloc(sizeof(char) * (len + path_len + 1));
-	result[0] = '\0';
-
-	if (result == NULL)
-		return (NULL);
-
-	if (_strncmp(str, home, len) == 0)
+	else if (_strcmp(info->argv[1], "-") == 0)
 	{
-		_strcat(result, "~");
-		tmp = _substr(str, len + 1, path_len);
-		_strcat(result, tmp);
-		free(tmp);
-	}
-
-	free(home);
-	return (result);
-}
-
-/**
- * change_dir - changes the directory of the process
- *
- * @dir: string - new directory
- *
- * Return: 0 on sucess, 1 on failure
- */
-int change_dir(char *dir)
-{
-	char cwd[PATH_MAX];
-
-	if (dir == NULL || *dir == '\0')
-	{
-		dir = _strdup(_getenv("HOME"));
-		if (dir == NULL)
-			dir = _strdup(_getenv("PWD"));
-	}
-	else if (_strcmp(dir, "-") == 0)
-	{
-		dir = _strdup(_getenv("OLDPWD"));
-		if (dir == NULL)
-			dir = _strdup(_getenv("PWD"));
-
-		print_str(dir);
-		print_str("\n");
+		if (!_getenv(info, "OLDPWD="))
+		{
+			_puts(s);
+			_putchar('\n');
+			return (1);
+		}
+		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
+		chdir_ret = /* TODO: what should this be? */
+			chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/");
 	}
 	else
-		dir = _strdup(dir);
-
-	if (_setenv("OLDPWD", _getenv("PWD")) == -1)
+		chdir_ret = chdir(info->argv[1]);
+	if (chdir_ret == -1)
 	{
-		print_err("Failed to update OLDPWD env variable");
-		return (2);
+		print_error(info, "can't cd to ");
+		_eputs(info->argv[1]), _eputchar('\n');
 	}
-
-	if (chdir(dir) == -1)
+	else
 	{
-		error_cd(dir);
-		free(dir);
-		return (2);
+		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
+		_setenv(info, "PWD", getcwd(buffer, 1024));
 	}
-
-	free(dir);
-	if (_setenv("PWD", getcwd(cwd, sizeof(cwd))) == -1)
-	{
-		print_err("Failed to update PWD env variable");
-		return (2);
-	}
-
 	return (0);
 }
 
 /**
- * alias - alias built in command to print and set aliases
- *
- * @tokens: a tokenized string of commands and arguments
- *
- * Return: 0 on sucess, 1 on fialure
+ * _myhelp - changes the current directory of the process
+ * @info: Structure containing potential arguments. Used to maintain
+ *          constant function prototype.
+ *  Return: Always 0
  */
-int alias(char **tokens)
+int _myhelp(info_t *info)
 {
-	int i, status = 0;
+	char **arg_array;
 
-	if (tokens[1] == NULL)
-		return (print_alias(NULL));
-	for (i = 1; tokens[i] != NULL; i++)
-		if (_strchr(tokens[i], '=') == NULL)
-			status |= print_alias(tokens[i]);
-		else
-			status |= set_alias(tokens[i]);
-
+	arg_array = info->argv;
+	_puts("help call works. Function not yet implemented \n");
+	if (0)
+		_puts(*arg_array); /* temp att_unused workaround */
 	return (0);
 }
