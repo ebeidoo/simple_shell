@@ -1,85 +1,172 @@
 #include "main.h"
 
 /**
- *_eputs - prints an input string
- * @str: the string to be printed
+ * error_127 - print error message for command not found failures.
  *
- * Return: Nothing
+ * @cmd: command or file name.
  */
-void _eputs(char *str)
+void error_127(char *cmd)
 {
-	int i = 0;
+	char *error, *hist_str;
+	int len;
 
-	if (!str)
+	hist_str = _itoa(hist);
+	if (!hist_str)
 		return;
-	while (str[i] != '\0')
+
+	len = _strlen(cmd) + _strlen(prog_name) + _strlen(hist_str) + 16;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
 	{
-		_eputchar(str[i]);
-		i++;
+		free(hist_str);
+		return;
 	}
+
+	_strcpy(error, prog_name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": ");
+	_strcat(error, cmd);
+	_strcat(error, ": not found\n");
+
+	free(hist_str);
+	print_err(error);
+	free(error);
 }
 
 /**
- * _eputchar - writes the character c to stderr
- * @c: The character to print
+ * error_126 - prints an error message for permission denied failures.
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * @cmd: command name.
  */
-int _eputchar(char c)
+void error_126(char *cmd)
 {
-	static int i;
-	static char buf[WRITE_BUF_SIZE];
+	char *error, *hist_str;
+	int len;
 
-	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	hist_str = _itoa(hist);
+	if (!hist_str)
+		return;
+
+	len = _strlen(prog_name) + _strlen(hist_str) + _strlen(cmd) + 24;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
 	{
-		write(2, buf, i);
-		i = 0;
+		free(hist_str);
+		return;
 	}
-	if (c != BUF_FLUSH)
-		buf[i++] = c;
-	return (1);
+
+	_strcpy(error, prog_name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": ");
+	_strcat(error, cmd);
+	_strcat(error, ": Permission denied\n");
+
+	free(hist_str);
+	print_err(error);
+	free(error);
 }
 
 /**
- * _putfd - writes the character c to given fd
- * @c: The character to print
- * @fd: The filedescriptor to write to
+ * error_exit - prints an error message for exit errors.
  *
- * Return: On success 1.
- * On error, -1 is returned, and errno is set appropriately.
+ * @value: the value that caused the error
  */
-int _putfd(char c, int fd)
+void error_exit(char *value)
 {
-	static int i;
-	static char buf[WRITE_BUF_SIZE];
+	char *error, *hist_str;
+	int len;
 
-	if (c == BUF_FLUSH || i >= WRITE_BUF_SIZE)
+	hist_str = _itoa(hist);
+	if (!hist_str)
+		return;
+
+	len = _strlen(prog_name) + _strlen(hist_str) + _strlen(value) + 27;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
 	{
-		write(fd, buf, i);
-		i = 0;
+		free(hist_str);
+		return;
 	}
-	if (c != BUF_FLUSH)
-		buf[i++] = c;
-	return (1);
+
+	_strcpy(error, prog_name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": exit: Illegal number: ");
+	_strcat(error, value);
+	_strcat(error, "\n");
+
+	free(hist_str);
+	print_err(error);
+	free(error);
 }
 
 /**
- *_putsfd - prints an input string
- * @str: the string to be printed
- * @fd: the filedescriptor to write to
+ * error_cd - prints an error message for cd errors.
  *
- * Return: the number of chars put
+ * @dir: the directory that's causing the error
  */
-int _putsfd(char *str, int fd)
+void error_cd(char *dir)
 {
-	int i = 0;
+	char *error, *hist_str;
+	int len;
 
-	if (!str)
-		return (0);
-	while (*str)
+	hist_str = _itoa(hist);
+	if (!hist_str)
+		return;
+
+	len = _strlen(prog_name) + _strlen(hist_str) + _strlen(dir) + 24;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
 	{
-		i += _putfd(*str++, fd);
+		free(hist_str);
+		return;
 	}
-	return (i);
+
+	_strcpy(error, prog_name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": cd: can't cd to ");
+	_strcat(error, dir);
+	_strcat(error, "\n");
+
+	free(hist_str);
+	print_err(error);
+	free(error);
+}
+
+/**
+ * error_file - print error message for file failures.
+ *
+ * @file: file name.
+ */
+void error_file(char *file)
+{
+	char *error, *hist_str;
+	int len;
+
+	hist_str = _itoa(hist);
+	if (!hist_str)
+		return;
+
+	len = _strlen(file) + _strlen(prog_name) + _strlen(hist_str) + 16;
+	error = malloc(sizeof(char) * (len + 1));
+	if (!error)
+	{
+		free(hist_str);
+		return;
+	}
+
+	_strcpy(error, prog_name);
+	_strcat(error, ": ");
+	_strcat(error, hist_str);
+	_strcat(error, ": ");
+	_strcat(error, "Can't open ");
+	_strcat(error, file);
+	_strcat(error, "\n");
+
+	free(hist_str);
+	print_err(error);
+	free(error);
 }
