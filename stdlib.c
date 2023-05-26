@@ -28,11 +28,11 @@ int get_len(int n)
 	return (lenght);
 }
 /**
- * itoa - function converts int to string.
+ * aux_itoa - function converts int to string.
  * @n: type int number
  * Return: String.
  */
-char *itoa(int n)
+char *aux_itoa(int n)
 {
 	unsigned int n1;
 	int lenght = get_len(n);
