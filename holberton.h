@@ -165,11 +165,11 @@ int is_executable(data_shell *datash);
 int check_error_cmd(char *dir, data_shell *datash);
 int cmd_exec(data_shell *datash);
 
-/* env1.c */
+/* env_utils1.c */
 char *_getenv(const char *name, char **_environ);
 int _env(data_shell *datash);
 
-/* env2.c */
+/* env_utils2.c */
 char *copy_info(char *name, char *value);
 void set_env(char *name, char *value, data_shell *datash);
 int _setenv(data_shell *datash);
