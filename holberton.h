@@ -215,12 +215,12 @@ int get_error(data_shell *datash, int eval);
 /* get_sigint.c */
 void get_sigint(int sig);
 
-/* aux_help.c */
-void aux_help_env(void);
-void aux_help_setenv(void);
-void aux_help_unsetenv(void);
-void aux_help_general(void);
-void aux_help_exit(void);
+/* help.c */
+void help_env(void);
+void help_setenv(void);
+void help_unsetenv(void);
+void help_general(void);
+void help_exit(void);
 
 /* aux_help2.c */
 void aux_help(void);
