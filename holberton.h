@@ -190,9 +190,9 @@ int (*get_builtin(char *cmd))(data_shell *datash);
 /* exit.c */
 int exit_shell(data_shell *datash);
 
-/* aux_stdlib.c */
+/* stdlib.c */
 int get_len(int n);
-char *aux_itoa(int n);
+char *itoa(int n);
 int _atoi(char *s);
 
 /* error1.c */
