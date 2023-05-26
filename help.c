@@ -1,10 +1,10 @@
 #include "holberton.h"
 
 /**
- * aux_help_env - Help information for the builtin env
+ * help_env - Help information for the builtin env
  * Return: no return
  */
-void aux_help_env(void)
+void help_env(void)
 {
 	char *help = "env: env [option] [name=value] [command [args]]\n\t";
 
@@ -14,10 +14,10 @@ void aux_help_env(void)
 
 }
 /**
- * aux_help_setenv - Help information for the builtin setenv
+ * help_setenv - Help information for the builtin setenv
  * Return: no return
  */
-void aux_help_setenv(void)
+void help_setenv(void)
 {
 
 	char *help = "setenv: setenv (const char *name, const char *value,";
@@ -29,10 +29,10 @@ void aux_help_setenv(void)
 	write(STDOUT_FILENO, help, _strlen(help));
 }
 /**
- * aux_help_unsetenv - Help information for the builtin unsetenv
+ * help_unsetenv - Help information for the builtin unsetenv
  * Return: no return
  */
-void aux_help_unsetenv(void)
+void help_unsetenv(void)
 {
 	char *help = "unsetenv: unsetenv (const char *name)\n\t";
 
@@ -43,10 +43,10 @@ void aux_help_unsetenv(void)
 
 
 /**
- * aux_help_general - Entry point for help information for the help builtin
+ * help_general - Entry point for help information for the help builtin
  * Return: no return
  */
-void aux_help_general(void)
+void help_general(void)
 {
 	char *help = "^-^ bash, version 1.0(1)-release\n";
 
@@ -65,10 +65,10 @@ void aux_help_general(void)
 	write(STDOUT_FILENO, help, _strlen(help));
 }
 /**
- * aux_help_exit - Help information fot the builint exit
+ * help_exit - Help information fot the builint exit
  * Return: no return
  */
-void aux_help_exit(void)
+void help_exit(void)
 {
 	char *help = "exit: exit [n]\n Exit shell.\n";
 
