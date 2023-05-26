@@ -19,9 +19,8 @@ char *error_env(data_shell *datash)
 	length = _strlen(datash->av[0]) + _strlen(ver_str);
 	length += _strlen(datash->args[0]) + _strlen(msg) + 4;
 	error = malloc(sizeof(char) * (length + 1));
-	if (error == 0)
+	if (error == NULL)
 	{
-		free(error);
 		free(ver_str);
 		return (NULL);
 	}
@@ -37,6 +36,7 @@ char *error_env(data_shell *datash)
 
 	return (error);
 }
+
 /**
  * error_path_126 - error message for path and failure denied permission.
  * @datash: data relevant (counter, arguments).
@@ -53,9 +53,8 @@ char *error_path_126(data_shell *datash)
 	length = _strlen(datash->av[0]) + _strlen(ver_str);
 	length += _strlen(datash->args[0]) + 24;
 	error = malloc(sizeof(char) * (length + 1));
-	if (error == 0)
+	if (error == NULL)
 	{
-		free(error);
 		free(ver_str);
 		return (NULL);
 	}
